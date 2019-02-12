@@ -109,7 +109,6 @@ static FLOAT ddot_kernel_8 (BLASLONG n, FLOAT *x, FLOAT *y)
 		return ddot_kernel_8_default(n, x, y);
 }
 
-
 FLOAT CNAME(BLASLONG n, FLOAT *x, BLASLONG inc_x, FLOAT *y, BLASLONG inc_y)
 {
 	BLASLONG i=0;
