@@ -41,9 +41,9 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 
-#ifndef HAVE_KERNEL_8
+extern FLOAT ddot_kernel_8_power9(BLASLONG n, FLOAT *x, FLOAT *y);
 
-static FLOAT ddot_kernel_8 (BLASLONG n, FLOAT *x, FLOAT *y)
+static FLOAT ddot_kernel_8_default (BLASLONG n, FLOAT *x, FLOAT *y)
 {
 	BLASLONG register i = 0;
 	FLOAT dot = 0.0;
@@ -65,7 +65,50 @@ static FLOAT ddot_kernel_8 (BLASLONG n, FLOAT *x, FLOAT *y)
        return dot;
 }
 
+
+int cpu_is(char *cpu_type)
+{
+#if ((__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >=16) )
+
+        #include <sys/auxv.h>
+        unsigned long v = getauxval( AT_PLATFORM );
+        printf("cpu is: %s \n", (char *) v);
+
+        return !strcmp(cpu_type, (char*) v);
+#else
+	return 0;
 #endif
+}
+
+
+int cpu_is_power9()
+{
+#ifdef __BUILTIN_CPU_SUPPORTS__
+        return __builtin_cpu_is("power9");
+#else
+        return cpu_is("power9");
+#endif
+}
+
+int cpu_is_power8()
+{
+#ifdef __BUILTIN_CPU_SUPPORTS__
+        return __builtin_cpu_is("power8");
+#else
+        return cpu_is("power8");
+#endif
+}
+
+static FLOAT ddot_kernel_8 (BLASLONG n, FLOAT *x, FLOAT *y)
+{
+        if(cpu_is_power9())
+		return ddot_kernel_8_power8(n, x, y);
+	else if (cpu_is_power8())
+		return ddot_kernel_8_power8(n, x, y);
+	else
+		return ddot_kernel_8_default(n, x, y);
+}
+
 
 FLOAT CNAME(BLASLONG n, FLOAT *x, BLASLONG inc_x, FLOAT *y, BLASLONG inc_y)
 {

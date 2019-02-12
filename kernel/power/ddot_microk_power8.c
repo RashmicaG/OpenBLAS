@@ -35,7 +35,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define HAVE_KERNEL_8 1
 
-static double ddot_kernel_8 (long n, double *x, double *y)
+static double ddot_kernel_8_power8 (long n, double *x, double *y)
 {
   double dot;
   __vector double t0;
